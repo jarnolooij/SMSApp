@@ -16,6 +16,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var editTextPhone: EditText
     private lateinit var editTextMessage: EditText
+    private lateinit var editTextTimes: EditText
 
     private val REQUEST_SMS_PERMISSIONS = 1
 
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
 
         editTextPhone = findViewById(R.id.editTextPhone)
         editTextMessage = findViewById(R.id.editTextMessage)
+        editTextTimes = findViewById(R.id.editTextTimes)
 
         val buttonSend: Button = findViewById(R.id.buttonSend)
         buttonSend.setOnClickListener {
@@ -67,8 +69,38 @@ class MainActivity : AppCompatActivity() {
         val phoneNum = editTextPhone.text.toString()
         val message = editTextMessage.text.toString()
 
-        val smsManager = SmsManager.getDefault()
-        smsManager.sendTextMessage(phoneNum, null, message, null, null)
+        if (phoneNum.isNotEmpty() && message.isNotEmpty()) {
+            val times = editTextTimes.text.toString().toIntOrNull() ?: 1
+
+            if (times > 0) {
+                val smsManager = SmsManager.getDefault()
+
+                for (i in 1..times) {
+                    smsManager.sendTextMessage(phoneNum, null, message, null, null)
+                }
+
+                showSentMessageSnackbar(times)
+            } else {
+                showInvalidNumberSnackbar()
+            }
+        } else {
+            showEmptyFieldsSnackbar()
+        }
+    }
+
+    private fun showSentMessageSnackbar(times: Int) {
+        val rootView: View = findViewById(android.R.id.content)
+        Snackbar.make(rootView, "SMS sent $times times", Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun showEmptyFieldsSnackbar() {
+        val rootView: View = findViewById(android.R.id.content)
+        Snackbar.make(rootView, "Please fill in phone number and message", Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun showInvalidNumberSnackbar() {
+        val rootView: View = findViewById(android.R.id.content)
+        Snackbar.make(rootView, "Please enter a valid number of times", Snackbar.LENGTH_LONG).show()
     }
 
     private fun showPermissionDeniedSnackbar() {
